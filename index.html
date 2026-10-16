@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PICT Simple Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #eef2f7;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    .calculator {
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 5px 20px #0002;
+      width: 290px;
+    }
+
+    h2 {
+      text-align: center;
+      color: #173b70;
+    }
+
+    #display {
+      width: 100%;
+      box-sizing: border-box;
+      height: 55px;
+      margin-bottom: 15px;
+      padding: 10px;
+      font-size: 25px;
+      text-align: right;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    button {
+      height: 52px;
+      font-size: 19px;
+      border: none;
+      border-radius: 8px;
+      background: #e3eaf5;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #cbd9ef;
+    }
+
+    .operator {
+      background: #c8dcff;
+    }
+
+    .equal {
+      background: #1769d2;
+      color: white;
+    }
+
+    .clear {
+      background: #ffd8d8;
+    }
+  </style>
+</head>
+<body>
+  <div class="calculator">
+    <h2>Simple Calculator</h2>
+
+    <input id="display" type="text" value="0" readonly>
+
+    <div class="buttons">
+      <button class="clear" onclick="clearDisplay()">C</button>
+      <button onclick="append('%')">%</button>
+      <button onclick="backspace()">⌫</button>
+      <button class="operator" onclick="append('/')">÷</button>
+
+      <button onclick="append('7')">7</button>
+      <button onclick="append('8')">8</button>
+      <button onclick="append('9')">9</button>
+      <button class="operator" onclick="append('*')">×</button>
+
+      <button onclick="append('4')">4</button>
+      <button onclick="append('5')">5</button>
+      <button onclick="append('6')">6</button>
+      <button class="operator" onclick="append('-')">−</button>
+
+      <button onclick="append('1')">1</button>
+      <button onclick="append('2')">2</button>
+      <button onclick="append('3')">3</button>
+      <button class="operator" onclick="append('+')">+</button>
+
+      <button onclick="append('0')">0</button>
+      <button onclick="append('.')">.</button>
+      <button onclick="backspace()">⌫</button>
+      <button class="equal" onclick="calculate()">=</button>
+    </div>
+  </div>
+
+  <script>
+    const display = document.getElementById('display');
+    let expression = '';
+    let finished = false;
+
+    function append(value) {
+      if (finished || display.value === 'Error') {
+        expression = '';
+        finished = false;
+      }
+
+      if (value === '%' && expression === '') return;
+
+      expression += value;
+      display.value = expression;
+    }
+
+    function clearDisplay() {
+      expression = '';
+      display.value = '0';
+      finished = false;
+    }
+
+    function backspace() {
+      if (finished || display.value === 'Error') {
+        clearDisplay();
+        return;
+      }
+
+      expression = expression.slice(0, -1);
+      display.value = expression || '0';
+    }
+
+    function calculate() {
+      try {
+        if (!expression ||
+            !/^[0-9+\-*/%.()\s]+$/.test(expression)) {
+          throw new Error('Invalid expression');
+        }
+
+        const result = Function(
+          '"use strict"; return (' + expression + ')'
+        )();
+
+        if (!Number.isFinite(result)) {
+          throw new Error('Invalid result');
+        }
+
+        display.value = String(
+          Math.round((result + Number.EPSILON) * 1e10) / 1e10
+        );
+        expression = display.value;
+        finished = true;
+      } catch (error) {
+        display.value = 'Error';
+        expression = '';
+        finished = true;
+      }
+    }
+  </script>
+</body>
+</html>
